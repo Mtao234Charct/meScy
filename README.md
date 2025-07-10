@@ -229,16 +229,27 @@ set default index.htm
                                                             </li>
                                                         </ul>
                                                         
-                                                        <hr>
-                                                        <p class="ds-markdown-paragraph">
-                                                            <a href="https://github.com/Mtao234Charct/meScy" target="_blank" rel="noreferrer">💻 GitHub仓库</a>
-                                                            |<br>
-                                                            <a href="https://www.mtaoddn.site/index.php?where=doct" target="_blank" rel="noreferrer">📚 完整文档</a>
-                                                            |<br>
-                                                            <a href="https://github.com/Mtao234Charct/meScy/issues" target="_blank" rel="noreferrer">🐞 报告问题</a>
-                                                            |<br>
+<hr>
+<p class="ds-markdown-paragraph">
+<a href="https://github.com/Mtao234Charct/meScy" target="_blank" rel="noreferrer">
+   💻 GitHub仓库
+</a>
+ |
+   <br>
+<a href="https://www.mtaoddn.site/index.php?where=doct" target="_blank" rel="noreferrer">
+   📚 完整文档
+</a>
+ |
+   <br>
+<a href="https://github.com/Mtao234Charct/meScy/issues" target="_blank" rel="noreferrer">
+   🐞 报告问题
+</a>
+ |
+   <br>
                                                             
-                                                        </p>
-                                                        <p class="ds-markdown-paragraph">
-                                                            <strong>用C++的力量，构建Web的未来</strong>
+</p>
+<p class="ds-markdown-paragraph">
+<strong>
+   用C++的力量，构建Web的未来
+</strong>
 </p>
