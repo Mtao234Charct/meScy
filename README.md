@@ -190,7 +190,7 @@ set default index.htm
                                                         <p class="ds-markdown-paragraph">欢迎贡献代码！请遵循以下流程：</p>
                                                         <ol start="1">
                                                             <li>
-                                                                <p class="ds-markdown-paragraph">在https://www.mtaoddn.site上注册账户</p>
+                                                                <p class="ds-markdown-paragraph">在 https://www.mtaoddn.site 上注册账户</p>
                                                             </li>
                                                             <li>
                                                                 <p class="ds-markdown-paragraph">
@@ -200,8 +200,7 @@ set default index.htm
                                                             </li>
                                                             <li>
                                                                 <p class="ds-markdown-paragraph">
-                                                                    发送邮件给开发者 (<code>admin@mtaoddn.site</code>
-                                                                    )
+                                                                    发送邮件给开发者 (<code>admin@mtaoddn.site</code>)
                                                                 </p>
                                                             </li>
                                                             <li>
