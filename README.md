@@ -47,45 +47,44 @@
                                                                 </p>
                                                             </li>
                                                         </ul>
-                                                        <h2>快速开始</h2>
-                                                        <h3>安装依赖</h3>
-                                                        <div class="md-code-block md-code-block-light">
-                                                            
-                                                            <pre>
+ <h2>快速开始</h2>
+ <h3>安装依赖</h3>
+ <div class="md-code-block md-code-block-light">
+                                                      
+<pre>
 <span class="token comment"># 必需组件</span>
 MinGW64 15.1.0
-                                                            </pre>
-                                                            或：直接下载二进制版本
-                                                        </div>
-                                                        <h3>编译meScy（如果使用二进制版本请跳过此处</h3>
-                                                        <div class="md-code-block md-code-block-light">
+</pre>
+ 或：直接下载二进制版本
+</div>
+<h3>编译meScy（如果使用二进制版本请跳过此处</h3>
+<div class="md-code-block md-code-block-light">
 g++ meScy.cpp -o meScy.exe -lssl -lcrypto -lws2_32 -L"Your openssl lib" -I"Your openssl inc"
-                                                        </div>
-                                                        <h3>
-                                                            基础配置 (<code>config.esr</code>
-                                                            )
-                                                        </h3>
-                                                        <div class="md-code-block md-code-block-light">
+ </div>
+<h3>
+ 基础配置 (<code>config.esr</code>
+ )
+</h3>
+<div class="md-code-block md-code-block-light">
                                                             
-                                                            <pre>bindon localhost
+<pre>bindon localhost
 listenon 8080
 
 add froute {
     /about     about.html
     /api/data api_handler.cpp
 }</pre>
-                                                        </div>
-                                                        <h3>启动服务器</h3>
-                                                        <div class="md-code-block md-code-block-light">
-                                                            
+</div>
+<h3>启动服务器</h3>
+<div class="md-code-block md-code-block-light">
 <pre>./meScy</pre>
-                                                        </div>
-                                                        <h2>配置文件语法</h2>
-                                                        <p class="ds-markdown-paragraph">
-                                                            meScy使用<code>.esr</code>
-                                                            (Easy Script Route)文件配置服务器：
-                                                        </p>
-                                                        <div class="md-code-block md-code-block-light">
+</div>
+<h2>配置文件语法</h2>
+<p class="ds-markdown-paragraph">
+    meScy使用<code>.esr</code>
+    (Easy Script Route)文件配置服务器：
+</p>
+<div class="md-code-block md-code-block-light">
                                                             
 <pre># 绑定地址 (默认: localhost)
 bindon localhost
@@ -105,7 +104,7 @@ set default index.htm
 </pre>
 </div>
 <h2>示例项目结构</h2>
-                                                        <div class="md-code-block md-code-block-light">
+<div class="md-code-block md-code-block-light">
                                                             
 <pre>project/
 ├── config.esr        # 服务器配置
@@ -118,10 +117,10 @@ set default index.htm
     └── meScy         # 服务器可执行文件
 # 注意：采用此布局时请使用绝对路径配置路由
 </pre>
-                                                        </div>
-                                                        <h2>性能基准</h2>
-                                                        <div class="markdown-table-wrapper">
-                                                            <table>
+</div>
+<h2>性能基准</h2>
+<div class="markdown-table-wrapper">
+<table>
                                                                 <thead>
                                                                     <tr>
                                                                         <th>测试条件</th>
