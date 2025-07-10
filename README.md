@@ -43,7 +43,7 @@
                                                             <li>
                                                                 <p class="ds-markdown-paragraph">
                                                                     📦 <strong>轻量级</strong>
-                                                                    ：核心实现小于500KB，无额外依赖
+                                                                    ：核心实现小于10000KB，无额外依赖
                                                                 </p>
                                                             </li>
                                                         </ul>
