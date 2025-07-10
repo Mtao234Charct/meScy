@@ -1,12 +1,10 @@
-#define CPPHTTPLIB_OPENSSL_SUPPORT
 #include "information.h"
 #include "openssl.h"
 typedef std::map<std::string, std::string> routeTable;
 routeTable route;
-int port = 443;  // 默认HTTPS端口改为443
+int port = 80;  
 std::string bindon = "localhost";
-std::string cert_file = "server.crt";  // 默认证书路径
-std::string private_key_file = "server.key";  // 默认私钥路径
+
 std::string dpath = "E:/w64devkit/dev/a/htdoct/default.htm";
 
 class EasyScripts {
@@ -50,13 +48,7 @@ public:
             }else if(command == "listenon"){
                 script>>command;
                 port = strToInt(command);
-            // 添加证书配置支持
-            }else if(command == "cert"){
-                script >> command;
-                cert_file = command;
-            }else if(command == "privatekey"){
-                script >> command;
-                private_key_file = command;
+            
             }else if(command =="set"){
             	script >> command;
             	if(command == "default"){
@@ -71,10 +63,10 @@ public:
 int main() {
     EasyScripts::runCommand("config.esr");
     
-    // 创建HTTPS服务器
-    httplib::SSLServer svr(cert_file.c_str(), private_key_file.c_str());
+    // 创建HTTP服务器
+    httplib::Server svr;
     if (!svr.is_valid()) {
-        std::cerr << "SSL server initialization failed!" << std::endl;
+        std::cerr << "server initialization failed!" << std::endl;
         return 801;
     }
     
@@ -122,7 +114,7 @@ int main() {
         });
     }
     
-    std::cout << "HTTPS server running at https://" << bindon << ":" << port << std::endl;
+    std::cout << "HTTP server running at http://" << bindon << ":" << port << std::endl;
     svr.listen(bindon.c_str(), port);
     
     std::string end;
