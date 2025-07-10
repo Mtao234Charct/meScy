@@ -1,0 +1,9 @@
+bindon localhost
+listenon 8080
+
+add froute
+{
+    /go E:\w64devkit\dev\a\htdoct\index.htm
+    /hi E:\w64devkit\dev\a\htdoct\default.htm
+}
+
