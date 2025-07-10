@@ -102,6 +102,12 @@ add froute {
 
 #设置默认页面
 set default index.htm
+#注：以上配置meScy与meScy-http-only通用
+   
+#配置SSL (仅限meScy)
+cert server.crt
+privateKey server.key
+   
 </pre>
 </div>
 <h2>示例项目结构</h2>
