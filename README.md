@@ -62,18 +62,19 @@ MinGW64 15.1.0
 g++ meScy.cpp -o meScy.exe -lssl -lcrypto -lws2_32 -L"Your openssl lib" -I"Your openssl inc"
  </div>
 <h3>
- 基础配置 (<code>config.esr</code>
- )
+ 基础配置 (<code>config.esr</code>)
 </h3>
 <div class="md-code-block md-code-block-light">
                                                             
-<pre>bindon localhost
+<pre>
+bindon localhost
 listenon 8080
 
 add froute {
     /about     about.html
     /api/data api_handler.cpp
-}</pre>
+}
+</pre>
 </div>
 <h3>启动服务器</h3>
 <div class="md-code-block md-code-block-light">
