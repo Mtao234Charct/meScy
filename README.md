@@ -232,6 +232,9 @@ privateKey server.key
                                                             <li>
                                                                 <p class="ds-markdown-paragraph">v0.5: 动态路由支持</p>
                                                             </li>
+                                                            <li>
+                                                               <p class="ds-markdown-paragraph">v0.6：分离meScy与meScy-http-only，实现双支持</p>
+                                                            </li>
                                                         </ul>
                                                         
 <hr>
