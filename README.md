@@ -69,11 +69,14 @@ g++ meScy.cpp -o meScy.exe -lssl -lcrypto -lws2_32 -L"Your openssl lib" -I"Your 
 <pre>
 bindon localhost
 listenon 8080
+SSLlistenon 443
 
 add froute {
     /about     about.html
-    /api/data api_handler.cpp
 }
+
+set default index.html
+
 </pre>
 </div>
 <h3>启动服务器</h3>
@@ -92,6 +95,8 @@ bindon localhost
 
 # 监听端口 (默认: 8080)
 listenon 8080
+# HTTPS服务器监听端口
+SSLlistenon 443
 
 # 添加文件路由
 add froute {
@@ -102,7 +107,7 @@ add froute {
 
 #设置默认页面
 set default index.htm
-#注：以上配置meScy与meScy-http-only通用
+#注：以上所有配置meScy与meScy-http-only通用
    
 #配置SSL (仅限meScy)
 cert server.crt
