@@ -19,7 +19,7 @@
                                                             <li>
                                                                 <p class="ds-markdown-paragraph">
                                                                     ⚡ <strong>高性能处理</strong>
-                                                                    ：基于C++17和现代异步I/O模型构建
+                                                                    ：基于C++23和现代异步I/O模型构建
                                                                 </p>
                                                             </li>
                                                             <li>
@@ -53,13 +53,16 @@
                                                       
 <pre>
 <span class="token comment"># 必需组件</span>
+
 MinGW64 15.1.0
 </pre>
  或：直接下载二进制版本
 </div>
 <h3>编译meScy（如果使用二进制版本请跳过此处</h3>
 <div class="md-code-block md-code-block-light">
+<code>
 g++ meScy.cpp -o meScy.exe -lssl -lcrypto -lws2_32 -L"Your openssl lib" -I"Your openssl inc"
+</code>
  </div>
 <h3>
  基础配置 (<code>config.esr</code>)
@@ -93,8 +96,8 @@ set default index.html
 <pre># 绑定地址 (默认: localhost)
 bindon localhost
 
-# 监听端口 (默认: 8080)
-listenon 8080
+# HTTP监听端口 (默认: 8080)
+HTTPlistenon 8080
 # HTTPS服务器监听端口
 SSLlistenon 443
 
@@ -107,9 +110,8 @@ add froute {
 
 #设置默认页面
 set default index.htm
-#注：以上所有配置meScy与meScy-http-only通用
    
-#配置SSL (仅限meScy)
+#配置SSL 
 cert server.crt
 privateKey server.key
    
@@ -119,15 +121,15 @@ privateKey server.key
 <div class="md-code-block md-code-block-light">
                                                             
 <pre>project/
+├── meScy             # 服务器可执行文件
 ├── config.esr        # 服务器配置
 ├── public/           # 静态资源
 │   ├── index.html
 │   ├── about.html
 │   └── styles.css
-│
-└── build/
-    └── meScy         # 服务器可执行文件
-# 注意：采用此布局时请使用绝对路径配置路由
+
+          
+
 </pre>
 </div>
 <h2>性能基准</h2>
@@ -197,32 +199,7 @@ privateKey server.key
                                                                 </p>
                                                             </li>
                                                         </ol>
-                                                        <h2>贡献指南</h2>
-                                                        <p class="ds-markdown-paragraph">欢迎贡献代码！请遵循以下流程：</p>
-                                                        <ol start="1">
-                                                            <li>
-                                                                <p class="ds-markdown-paragraph">在 https://www.mtaoddn.site 上注册账户</p>
-                                                            </li>
-                                                            <li>
-                                                                <p class="ds-markdown-paragraph">
-                                                                    发送贡献帖子 (<code>https://www.mtaoddn.site/index.php?where=doct</code>
-                                                                    )
-                                                                </p>
-                                                            </li>
-                                                            <li>
-                                                                <p class="ds-markdown-paragraph">
-                                                                    发送邮件给开发者 (<code>admin@mtaoddn.site</code>)
-                                                                </p>
-                                                            </li>
-                                                            <li>
-                                                                <p class="ds-markdown-paragraph">
-                                                                    等待开发者回信 
-                                                                </p>
-                                                            </li>
-                                                            <li>
-                                                                <p class="ds-markdown-paragraph">按照开发者给予的链接提交代码</p>
-                                                            </li>
-                                                        </ol>
+                                                        
                                                         <h2>路线图</h2>
                                                         <ul>
                                                             <li>
@@ -239,6 +216,9 @@ privateKey server.key
                                                             </li>
                                                             <li>
                                                                <p class="ds-markdown-paragraph">v0.6：分离meScy与meScy-http-only，实现双支持</p>
+                                                            </li>
+                                                            <li>
+                                                               <p class="ds-markdown-paragraph">v0.7: 将meScy与meScy-http-only合并，摒弃http单支持，优化核心大小</p>
                                                             </li>
                                                         </ul>
                                                         
