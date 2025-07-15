@@ -1,8 +1,12 @@
 #include "httplib.h"
+#include "EasyScript2.h"
 #include <windows.h>
 #include <map>
 #include <cstring>
-#include <fstream>
 #include <sstream>
 #include <iostream>
 #include <fstream>
+#include <WS2tcpip.h>
+#include <vector>
+#include <thread>
+#include <atomic>

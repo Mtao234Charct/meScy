@@ -1,131 +1,257 @@
-#define CPPHTTPLIB_OPENSSL_SUPPORT
+#define CPPHTTPLIB_OPENSSL_SUPPORT 
 #include "information.h"
-#include "openssl.h"
-typedef std::map<std::string, std::string> routeTable;
-routeTable route;
-int port = 443;  // 默认HTTPS端口改为443
-std::string bindon = "localhost";
-std::string cert_file = "server.crt";  // 默认证书路径
-std::string private_key_file = "server.key";  // 默认私钥路径
-std::string dpath = "E:/w64devkit/dev/a/htdoct/default.htm";
-
-class EasyScripts {
-private:
-    typedef std::map<std::string, std::string> routes;
-public:
-    int static strToInt(std::string str){
-        std::istringstream it(str);
-        int num;
-        it>>num;
-        return num;
+#include "httplib.h"
+#include <thread>
+#include <atomic>
+#include <memory>
+#include <mutex>
+#include <future>
+#include <chrono>
+#include <condition_variable>
+#include <fstream>
+#include <filesystem>
+#include <ranges>
+#include <functional>
+#include <print>  // C++23打印功能 (编译需支持)
+ 
+using namespace std::chrono_literals; // C++20时间字面量 
+namespace fs = std::filesystem;
+ 
+// 全局停止信号 
+std::stop_source stopSrc;
+std::atomic<bool> serverReady{false};
+ 
+// 智能指针管理服务器实例 
+std::atomic<std::shared_ptr<httplib::Server>> httpSvr{nullptr};
+std::atomic<std::shared_ptr<httplib::SSLServer>> httpsSvr{nullptr};
+ 
+// 控制台锁封装 
+struct LockedConsole {
+    std::lock_guard<std::mutex> lock;
+    LockedConsole() : lock(consoleMutex) {}
+};
+ 
+// 文件读取辅助函数 
+std::optional<std::string> readFile(const fs::path& path) {
+    if (std::ifstream file(path, std::ios::binary); file) {
+        return {{std::istreambuf_iterator<char>(file), 
+                 std::istreambuf_iterator<char>()}};
     }
-    void static runCommand(std::string file){
-        std::ifstream script(file.c_str());
-        std::string command;
-        while(!script.eof()){
-                
-            script>>command;
-            if(command == "add"){
-                script>>command;
-                if(command == "froute"){
-                    script>>command;
-                    if(command == "{"){
-                        while(command != "}"){
-                            std::string path;
-                            script>>command;
-                            if(command == "}"){
-                                break;
-                            }
-                            script>>path;
-                            route[command] = path;
-                        }
-                        
-                    }else{
-                        std::cerr<<"Except '{' but found \""+command+"\" at \"add froute >>"+command+"<<\""<<std::endl;
-                    }
-                }
-            }else if(command == "bindon"){
-                script>>command;
-                bindon = command;
-            }else if(command == "listenon"){
-                script>>command;
-                port = strToInt(command);
-            // 添加证书配置支持
-            }else if(command == "cert"){
-                script >> command;
-                cert_file = command;
-            }else if(command == "privatekey"){
-                script >> command;
-                private_key_file = command;
-            }else if(command =="set"){
-            	script >> command;
-            	if(command == "default"){
-            		script >> command;
-            		dpath = command;
-				}
-			}
+    return std::nullopt;
+}
+ 
+// 路由设置 
+template<typename ServerType>
+void setupServerRoutes(ServerType& svr) {
+    svr.set_read_timeout(5s);    // C++20时间字面量 
+    svr.set_write_timeout(5s);   // C++20时间字面量 
+    
+    // 主路由 
+    svr.Get("/", [dpath = fs::path(dpath)](const httplib::Request&, httplib::Response& res) {
+        if (auto content = readFile(dpath)) {
+            res.set_content(std::move(*content),  "text/html");
+        } else {
+            res.status  = 404;
+            res.set_content("<h1>File  not found</h1>", "text/html");
         }
-    }
-}; 
-
-int main() {
-    EasyScripts::runCommand("config.esr");
-    
-    // 创建HTTPS服务器
-    httplib::SSLServer svr(cert_file.c_str(), private_key_file.c_str());
-    if (!svr.is_valid()) {
-        std::cerr << "SSL server initialization failed!" << std::endl;
-        return 801;
-    }
-    
-    //默认页初始化 
-    std::string dcontent;
-    std::ifstream dresponse(dpath);
-    if (dresponse) {
-        dresponse.seekg(0, std::ios::end);
-        dcontent.reserve(dresponse.tellg());
-        dresponse.seekg(0, std::ios::beg);
-        dcontent.assign(
-            std::istreambuf_iterator<char>(dresponse),
-            std::istreambuf_iterator<char>()
-        );
-    } else {
-        dcontent = "<h1>File not found</h1>";
-        std::cerr << "Error opening: " << dpath << std::endl;
-    }
-    // 根路由    
-    svr.Get("/", [content = std::move(dcontent)](const httplib::Request&, httplib::Response& res) {
-    	res.set_content(content, "text/html");
     });
     
+    // 动态路由注册 
+    std::ranges::for_each(route, [&](const auto& r) {
+        svr.Get(r.first.c_str(),  [file_path = r.second](const  httplib::Request&, httplib::Response& res) {
+            if (auto content = readFile(file_path)) {
+                res.set_content(std::move(*content),  "text/html");
+            } else {
+                res.status  = 404;
+                res.set_content("<h1>File  not found</h1>", "text/html");
+            }
+        });
+    });
     
+    // 健康检查端点 
+    svr.Get("/health", [](const httplib::Request&, httplib::Response& res) {
+        res.set_content("Server  is running", "text/plain");
+    });
     
-    // 动态路由
-    for (const auto& [path, file_path] : route) {
-        std::string file_content;
-        std::ifstream fresponse(file_path);
-        if (fresponse) {
-            fresponse.seekg(0, std::ios::end);
-            file_content.reserve(fresponse.tellg());
-            fresponse.seekg(0, std::ios::beg);
-            file_content.assign(
-                std::istreambuf_iterator<char>(fresponse),
-                std::istreambuf_iterator<char>()
-            );
-        } else {
-            file_content = "<h1>File not found</h1>";
-            std::cerr << "Error opening: " << file_path << std::endl;
+    // 优雅停止端点 
+    svr.Get("/stop", [](const httplib::Request&, httplib::Response& res) {
+        stopSrc.request_stop(); 
+        res.set_content("Server  stopping...", "text/plain");
+    });
+}
+ 
+void runHTTPServer() {
+    try {
+        auto svr = std::make_shared<httplib::Server>();
+        httpSvr.store(svr); 
+        
+        if (!svr->is_valid()) {
+            throw std::runtime_error("HTTP server initialization failed");
         }
         
-        svr.Get(path.c_str(), [content = std::move(file_content)](const httplib::Request&, httplib::Response& res) {
-            res.set_content(content, "text/html");
+        setupServerRoutes(*svr);
+        
+        {
+            LockedConsole console;
+            std::println("HTTP server starting at http://{}:{}", bindon, httpPort);
+        }
+        
+        // 使用jthread自动管理线程生命周期 
+        std::jthread listenThread([svr, bindAddr = bindon, port = httpPort] {
+            if (svr->listen(bindAddr.c_str(), port)) {
+                {
+                    LockedConsole console;
+                    std::println("HTTP server listening at http://{}:{}", bindAddr, port);
+                }
+                serverReady = true;
+            } else {
+                LockedConsole console;
+                std::println("HTTP server failed to start");
+            }
         });
+        
+        // 等待服务器启动 
+        while (!serverReady && !stopSrc.stop_requested())  {
+            std::this_thread::sleep_for(100ms);
+        }
+        
+        // 等待停止信号 
+        while (!stopSrc.stop_requested())  {
+            std::this_thread::sleep_for(100ms);
+        }
+        
+        // 安全停止服务器 
+        svr->stop();
+        
+        // 清理资源 
+        httpSvr.store(nullptr); 
+        
+        {
+            LockedConsole console;
+            std::println("HTTP server stopped");
+        }
+    } catch (const std::exception& e) {
+        LockedConsole console;
+        std::println("HTTP server error: {}", e.what()); 
+    }
+}
+ 
+void runHTTPSServer() {
+    try {
+        auto svr = std::make_shared<httplib::SSLServer>(
+            cert_file.c_str(), 
+            private_key_file.c_str()
+        );
+        httpsSvr.store(svr); 
+        
+        if (!svr->is_valid()) {
+            throw std::runtime_error("HTTPS server initialization failed");
+        }
+        
+        setupServerRoutes(*svr);
+        
+        {
+            LockedConsole console;
+            std::println("HTTPS server starting at https://{}:{}", bindon, httpsPort);
+        }
+        
+        // 使用jthread自动管理线程生命周期 
+        std::jthread listenThread([svr, bindAddr = bindon, port = httpsPort] {
+            if (svr->listen(bindAddr.c_str(), port)) {
+                {
+                    LockedConsole console;
+                    std::println("HTTPS server listening at https://{}:{}", bindAddr, port);
+                }
+                serverReady = true;
+            } else {
+                LockedConsole console;
+                std::println("HTTPS server failed to start");
+            }
+        });
+        
+        // 等待服务器启动 
+        while (!serverReady && !stopSrc.stop_requested())  {
+            std::this_thread::sleep_for(100ms);
+        }
+        
+        // 等待停止信号 
+        while (!stopSrc.stop_requested())  {
+            std::this_thread::sleep_for(100ms);
+        }
+        
+        // 安全停止服务器 
+        svr->stop();
+        
+        // 清理资源 
+        httpsSvr.store(nullptr); 
+        
+        {
+            LockedConsole console;
+            std::println("HTTPS server stopped");
+        }
+    } catch (const std::exception& e) {
+        LockedConsole console;
+        std::println("HTTPS server error: {}", e.what()); 
+    }
+}
+ 
+int main() {
+    using namespace std::literals;
+    
+    std::println("Starting server... (Current time: 2025年7月15日 21:05)");
+    
+    // 加载配置文件 
+    try {
+        EasyScriptsRouter::runCommand("config.esr");  
+    } catch (const std::exception& e) {
+        std::println("Config error: {}", e.what()); 
     }
     
-    std::cout << "HTTPS server running at https://" << bindon << ":" << port << std::endl;
-    svr.listen(bindon.c_str(), port);
+    // 自动管理线程容器 
+    std::vector<std::jthread> serverThreads;
     
-    std::string end;
-    std::cin >> end;
+    // 启动HTTP服务器 
+    if (httpPort > 0) {
+        serverThreads.emplace_back(runHTTPServer); 
+    } else {
+        std::println("HTTP server disabled (port not set)");
+    }
+    
+    // 启动HTTPS服务器 
+    if (httpsPort > 0) {
+        serverThreads.emplace_back(runHTTPSServer); 
+    } else {
+        std::println("HTTPS server disabled (port not set)");
+    }
+    
+    // 命令处理 
+    std::println("Type 'end' to stop servers or 'status' for status...");
+    std::string command;
+    
+    while (!stopSrc.stop_requested())  {
+        std::cin >> command;
+        if (command == "end") {
+            stopSrc.request_stop(); 
+            break;
+        } else if (command == "status") {
+            LockedConsole console;
+            std::println("Server status: {}", 
+                         stopSrc.stop_requested()  ? "STOPPING" : "RUNNING");
+            
+            auto httpActive = httpSvr.load(); 
+            std::println("HTTP: {}{}", 
+                         httpActive ? "ACTIVE" : "INACTIVE",
+                         httpActive && httpActive->is_running() ? " (RUNNING)" : "");
+            
+            auto httpsActive = httpsSvr.load(); 
+            std::println("HTTPS: {}{}", 
+                         httpsActive ? "ACTIVE" : "INACTIVE",
+                         httpsActive && httpsActive->is_running() ? " (RUNNING)" : "");
+        } else {
+            std::println("Unknown command. Type 'end' to stop or 'status' for server status.");
+        }
+    }
+    
+    std::println("All servers stopped. Exiting application...");
     return 0;
 }
